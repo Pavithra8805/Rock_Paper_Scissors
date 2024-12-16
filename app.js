@@ -1,67 +1,89 @@
-const computerChoiceDisplay = document.getElementById("computer-choice");
-const userChoiceDisplay = document.getElementById("user-choice");
-const resultDisplay = document.getElementById("result");
-const possibleChoices = document.querySelectorAll(".button");
-const userScoreDisplay = document.getElementById('user-score');
-const computerScoreDisplay = document.getElementById('computer-score');
+const computerChoiceDisplay = document.getElementById('computer-choice');
+const userChoiceDisplay = document.getElementById('user-choice');
+const resultDisplay = document.getElementById('result');
+const winDisplay = document.getElementById('wins');
+const lossDisplay = document.getElementById('losses');
+const tieDisplay = document.getElementById('ties');
 const restartBtn = document.getElementById('restart-btn');
 
+// Sound effects
+const winSound = new Audio('win.mp3');
+const loseSound = new Audio('lose.mp3');
+const tieSound = new Audio('tie.wav');
+
+// Game variables
 let userChoice;
 let computerChoice;
 let result;
-let userScore = 0;
-let computerScore = 0;
+let wins = 0;
+let losses = 0;
+let ties = 0;
 
-// Restart game
-restartBtn.addEventListener('click', () => {
-    userScore = 0;
-    computerScore = 0;
-    userChoice = '';
-    computerChoice = '';
-    result = "Start a new game!!";
-
-    userChoiceDisplay.innerHTML = "None";
-    computerChoiceDisplay.innerHTML = "None";
-    resultDisplay.innerHTML = result;
-    userScoreDisplay.innerHTML = userScore;
-    computerScoreDisplay.innerHTML = computerScore;
-});
+// Buttons for user choice
+const possibleChoices = document.querySelectorAll('button');
 
 // Event listener for user choices
-possibleChoices.forEach(choice => 
+possibleChoices.forEach(choice =>
     choice.addEventListener('click', (e) => {
         userChoice = e.target.id;
+        if (userChoice === 'restart-btn') return; // Skip restart button
         userChoiceDisplay.innerHTML = userChoice;
         generateComputerChoice();
         getResult();
+        updateScore();
     })
 );
 
 // Generate computer's choice
 function generateComputerChoice() {
-    const availableChoices = ['rock', 'paper', 'scissors'];
-    computerChoice = availableChoices[Math.floor(Math.random() * availableChoices.length)];
+    const choices = ['rock', 'paper', 'scissors'];
+    computerChoice = choices[Math.floor(Math.random() * choices.length)];
     computerChoiceDisplay.innerHTML = computerChoice;
 }
 
 // Determine the result
 function getResult() {
-    if (computerChoice === userChoice) {
+    if (userChoice === computerChoice) {
         result = "It's a tie!";
+        tieSound.play();
+        ties++;
     } else if (
-        (computerChoice === "rock" && userChoice === "scissors") ||
-        (computerChoice === "paper" && userChoice === "rock") ||
-        (computerChoice === "scissors" && userChoice === "paper")
+        (userChoice === 'rock' && computerChoice === 'scissors') ||
+        (userChoice === 'scissors' && computerChoice === 'paper') ||
+        (userChoice === 'paper' && computerChoice === 'rock')
     ) {
-        result = "Computer Wins!";
-        computerScore++;
+        result = "You win!";
+        winSound.play();
+        wins++;
     } else {
-        result = "You Win!";
-        userScore++;
+        result = "You lose!";
+        loseSound.play();
+        losses++;
     }
-
-    // Update UI with the results
     resultDisplay.innerHTML = result;
-    userScoreDisplay.innerHTML = userScore;
-    computerScoreDisplay.innerHTML = computerScore;
 }
+
+// Update the score on the UI
+function updateScore() {
+    winDisplay.innerHTML = `Wins: ${wins}`;
+    lossDisplay.innerHTML = `Losses: ${losses}`;
+    tieDisplay.innerHTML = `Ties: ${ties}`;
+}
+
+// Restart the game
+restartBtn.addEventListener('click', () => {
+    wins = 0;
+    losses = 0;
+    ties = 0;
+    userChoice = '';
+    computerChoice = '';
+    result = 'Start Playing!';
+    
+    // Reset UI
+    userChoiceDisplay.innerHTML = 'None';
+    computerChoiceDisplay.innerHTML = 'None';
+    resultDisplay.innerHTML = result;
+    winDisplay.innerHTML = `Wins: ${wins}`;
+    lossDisplay.innerHTML = `Losses: ${losses}`;
+    tieDisplay.innerHTML = `Ties: ${ties}`;
+});
